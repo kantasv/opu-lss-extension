@@ -3,7 +3,7 @@
 // @name         LSS Simplifier
 // @namespace    http://tampermonkey.net/
 // @version      0.1
-// @description  This script simplify the view of the OPU LSS site for enhancing learning experience.
+// @description  try to take over the world!
 // @author       Kanta Yamaoka
 // @match        https://lss.osakafu-u.ac.jp/*
 // @grant        none
@@ -19,6 +19,17 @@
         'container-fluid',
         'navbar-inner', 'navbar', 'container-fluid']
     var unimportantElementIds = ['site-news-forum']
+
+    var isTopPage = () => {
+        var currentUrl = window.location.href
+        if (currentUrl == 'https://lss.osakafu-u.ac.jp/' || currentUrl == 'https://lss.osakafu-u.ac.jp') {
+            console.log('Top page detected.')
+            return true
+        } else {
+            console.log('Current page is not Top page.')
+            return false
+        }
+    }
 
     var deleteUnimportantElements = () => {
 
@@ -116,9 +127,13 @@
         leftBarElement.style.backgroundColor = 'black'
         */
 
-        leftBarElement.setAttribute('id','leftBarElement')
+        leftBarElement.setAttribute('id', 'leftBarElement')
         document.body.appendChild(leftBarElement);
 
+        //focus if on top page
+        if (isTopPage()) {
+            document.getElementById('keywordFilterInput').focus()
+        }
 
 
 
@@ -129,7 +144,7 @@
 
         document.getElementById('minimizeWindowButton').onclick = () => {
             leftBarElement.style.display = 'none'
-            document.getElementById('hiddenStartButton').style.display='block'
+            document.getElementById('hiddenStartButton').style.display = 'block'
         }
 
         var resetCourses = () => {
@@ -166,11 +181,8 @@
         }
 
         document.getElementById('keywordFilterWrapper').onclick = () => {
-            var currentUrl = window.location.href
-            if (currentUrl == 'https://lss.osakafu-u.ac.jp/' || currentUrl == 'https://lss.osakafu-u.ac.jp') {
-                console.log('Top page detected.')
+            if (isTopPage()) {
             } else {
-                console.log('Current page is not Top page.')
                 if (confirm('トップページでのみ授業検索ができます。移動しますか？')) {
                     window.location.href = 'https://lss.osakafu-u.ac.jp/'
                 }
@@ -180,19 +192,19 @@
 
     }
 
-    var initHiddenStartButton=()=>{
-        var hiddenStartButton=document.createElement('button')
-        hiddenStartButton.setAttribute('id','hiddenStartButton')
-        hiddenStartButton.innerText='拡張機能を表示する'
-        hiddenStartButton.style.position='fixed'
-        hiddenStartButton.style.bottom='0px'
-        hiddenStartButton.style.left='0px'
+    var initHiddenStartButton = () => {
+        var hiddenStartButton = document.createElement('button')
+        hiddenStartButton.setAttribute('id', 'hiddenStartButton')
+        hiddenStartButton.innerText = '拡張機能を表示する'
+        hiddenStartButton.style.position = 'fixed'
+        hiddenStartButton.style.bottom = '0px'
+        hiddenStartButton.style.left = '0px'
         document.body.appendChild(hiddenStartButton)
-        hiddenStartButton.style.display='none'
-        hiddenStartButton.style.zIndex='100'
-        hiddenStartButton.onclick=()=>{
-            hiddenStartButton.style.display='none'
-            document.getElementById('leftBarElement').style.display='block'
+        hiddenStartButton.style.display = 'none'
+        hiddenStartButton.style.zIndex = '100'
+        hiddenStartButton.onclick = () => {
+            hiddenStartButton.style.display = 'none'
+            document.getElementById('leftBarElement').style.display = 'block'
         }
 
     }
@@ -365,29 +377,147 @@
     }
 
     var getSyllabusRedirectUrl = () => {
+        var coursePageTitleElement = document.getElementsByClassName('page-context-header')[0];
+        if (coursePageTitleElement) {
+            var courseTitle = coursePageTitleElement.innerText.split(' ')[1]
+            console.log('Now in a course page:', courseTitle)
+            var syllabusOriginalUrl = 'http://www0.osakafu-u.ac.jp/syllabus/list01.aspx?CD1=2B12&CD2=01&CD3=01'
+            var syllabusRedirectUrl = syllabusOriginalUrl + '&courseTitle=' + courseTitle
+            return syllabusRedirectUrl
+        } else {
+            console.log('not in a course page')
+            return null
+        }
+    }
+    //adds button to syllabus when in course page
+    if (getSyllabusRedirectUrl()) {
+        var syllabusRedirectButton = document.createElement('button')
+        syllabusRedirectButton.innerText = 'この授業のシラバスを見る'
+        syllabusRedirectButton.onclick = () => {
+            window.open(getSyllabusRedirectUrl())
+        }
+        document.getElementById('leftBarElement').appendChild(syllabusRedirectButton)
+    }
+
+
+
+
+    //*****6/2 progress from here
+
+var getTwoDigits = (integer) => {
+    if (integer >= 0 && integer < 10 + 1) {
+        return `0${integer}`
+    } else {
+        return integer
+    }
+}
+
+
+var getGoogleCalendarUrl = (queries) => {
+
+    var date = new Date()
+    var year = date.getFullYear()
+    //date.getMonth() returns the index of months,
+    //so make sure add 1 to the value to get index starting from 1, not 0.
+
+    //default settings
+    var hours = getTwoDigits(0)
+    var minuets = getTwoDigits(0)
+    var hours_end = getTwoDigits(1)
+    console.log(year, 'year')
+
+    //form DOM operations
+    //
+    /*
+        if (queries.split('/').length||queries) {
+            var dayQuery = queries.split('/')[1]
+            var monthQuery = queries.split('/')[0]
+            var month = getTwoDigits(monthQuery)
+            var day = getTwoDigits(dayQuery)
+
+            var startsAt = `${year}-${month}-${day}T${hours}:${minuets}:00+09:00`
+            var endsAt = `${year}-${month}-${day}T${hours_end}:${minuets}:00+09:00`
+        } else {
+            */
+
+    if (true) {
+        var month = getTwoDigits(date.getMonth() + 1)
+        var day = getTwoDigits(date.getDay())
+        var startsAt = `${year}-${month}-${day}T${hours}:${minuets}:00+09:00`
+        var endsAt = `${year}-${month}-${day}T${hours_end}:${minuets}:00+09:00`
+    }
+    console.log('startsAt', startsAt)
+
+
     var coursePageTitleElement = document.getElementsByClassName('page-context-header')[0];
     if (coursePageTitleElement) {
+
         var courseTitle = coursePageTitleElement.innerText.split(' ')[1]
-        console.log('Now in a course page:', courseTitle)
-        var syllabusOriginalUrl = 'http://www0.osakafu-u.ac.jp/syllabus/list01.aspx?CD1=2B12&CD2=01&CD3=01'
-        var syllabusRedirectUrl = syllabusOriginalUrl + '&courseTitle=' + courseTitle
-        return syllabusRedirectUrl
+        var googleCalendarUrl
+            = (function () {
+                //http://yoshiko.hatenablog.jp/entry/2014/03/12/Google%E3%82%AB%E3%83%AC%E3%83%B3%E3%83%80%E3%83%BC%E3%81%B8%E4%BA%88%E5%AE%9A%E8%BF%BD%E5%8A%A0%E3%81%99%E3%82%8B%E3%83%AA%E3%83%B3%E3%82%AF%E3%81%AEURL
+                var getUTC = function (date_str) {
+                    var date = new Date(date_str);
+                    return date.getUTCFullYear() +
+                        zerofill(date.getUTCMonth() + 1) +
+                        zerofill(date.getUTCDate()) +
+                        'T' +
+                        zerofill(date.getUTCHours()) +
+                        zerofill(date.getUTCMinutes()) +
+                        zerofill(date.getUTCSeconds()) +
+                        'Z';
+                };
+
+                var zerofill = function (num) {
+                    return ('0' + num).slice(-2);
+                }
+
+                return 'http://www.google.com/calendar/event?' +
+                    'action=' + 'TEMPLATE' +
+                    '&text=' + encodeURIComponent(courseTitle + '課題') +
+                    //'&details=' + encodeURIComponent('予定の説明') +
+                    //'&location=' + encodeURIComponent('場所') +
+                    '&dates=' + getUTC(startsAt) + '/' + getUTC(endsAt) +
+                    '&trp=' + 'false'
+                //'&sprop=' + encodeURIComponent('リンク設置元のURL') +
+                //'&sprop=' + 'name:' + encodeURIComponent('リンク設置元のサービス名');
+
+            })();
+        return googleCalendarUrl
     } else {
         console.log('not in a course page')
         return null
     }
 }
+
+
 //adds button to syllabus when in course page
-if(getSyllabusRedirectUrl()){
-    var syllabusRedirectButton=document.createElement('button')
-    syllabusRedirectButton.innerText='この授業のシラバスを見る'
-    syllabusRedirectButton.onclick=()=>{
-        window.open(getSyllabusRedirectUrl())
+if (getGoogleCalendarUrl()) {
+    var googleCalendarDatesInput = document.createElement('input')
+    var googleCalendarButton = document.createElement('button')
+    googleCalendarButton.innerText = 'カレンダーに追加'
+
+
+    //document.getElementById('leftBarElement').appendChild(googleCalendarDatesInput)
+    document.getElementById('leftBarElement').appendChild(googleCalendarButton)
+    googleCalendarButton.onclick = () => {
+        var queries='placeholder at this point'
+        window.open(getGoogleCalendarUrl(queries))
     }
-    document.getElementById('leftBarElement').appendChild(syllabusRedirectButton)
+    /*googleCalendarDatesInput.oninput = () => {
+        var queries = googleCalendarDatesInput.value
+        //realtime reactive
+        if(queries){
+            googleCalendarButton.onclick = () => {
+                window.open(getGoogleCalendarUrl(queries))
+            }
+        }
+
+
+    }
+    */
 }
-
-
+//*****6/2 progress ends here
 
 
 
