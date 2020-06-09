@@ -547,7 +547,7 @@
 
             //this is used for looking for my peers
             //you can change it and you can find students based on your student numbers and so on
-            var query=1191201
+            var query = 1191201
             return `https://lss.osakafu-u.ac.jp/user/index.php?id=${id}&unified-filters%5B0%5D=${query}&perpage=5000`
         } else {
             return false
@@ -563,6 +563,34 @@
             window.open(getPeerPageUrl())
         }
     }
+
+
+    //過去問データベース照会
+
+    var initExamDatabaseButton = () => {
+        var coursePageTitleElement = document.getElementsByClassName('page-context-header')[0];
+        if (coursePageTitleElement) {
+
+            var courseTitle = coursePageTitleElement.innerText.split(' ')[1]
+
+            var query = courseTitle
+            var enc_query = encodeURI(query)
+            var url = `https://drive.google.com/drive/u/0/search?q=${enc_query}%20parent:1QdnEZrXNkM6KeaPbt-3i3NInWdeFYkeQ`
+
+
+            var examDatabaseButton = document.createElement('button')
+            examDatabaseButton.innerText = 'データベース検索'
+            document.getElementById('leftBarElement').appendChild(examDatabaseButton)
+            examDatabaseButton.onclick = () => {
+                window.open(url)
+            }
+
+        }
+    }
+
+    initExamDatabaseButton()
+
+
 
 
 
