@@ -404,120 +404,165 @@
 
     //*****6/2 progress from here
 
-var getTwoDigits = (integer) => {
-    if (integer >= 0 && integer < 10 + 1) {
-        return `0${integer}`
-    } else {
-        return integer
+    var getTwoDigits = (integer) => {
+        if (integer >= 0 && integer < 10 + 1) {
+            return `0${integer}`
+        } else {
+            return integer
+        }
     }
-}
 
 
-var getGoogleCalendarUrl = (queries) => {
+    var getGoogleCalendarUrl = (queries) => {
 
-    var date = new Date()
-    var year = date.getFullYear()
-    //date.getMonth() returns the index of months,
-    //so make sure add 1 to the value to get index starting from 1, not 0.
+        var date = new Date()
+        var year = date.getFullYear()
+        //date.getMonth() returns the index of months,
+        //so make sure add 1 to the value to get index starting from 1, not 0.
 
-    //default settings
-    var hours = getTwoDigits(0)
-    var minuets = getTwoDigits(0)
-    var hours_end = getTwoDigits(1)
-    console.log(year, 'year')
+        //default settings
+        var hours = getTwoDigits(0)
+        var minuets = getTwoDigits(0)
+        var hours_end = getTwoDigits(1)
+        console.log(year, 'year')
 
-    //form DOM operations
-    //
-    /*
-        if (queries.split('/').length||queries) {
-            var dayQuery = queries.split('/')[1]
-            var monthQuery = queries.split('/')[0]
-            var month = getTwoDigits(monthQuery)
-            var day = getTwoDigits(dayQuery)
+        //form DOM operations
+        //
+        /*
+            if (queries.split('/').length||queries) {
+                var dayQuery = queries.split('/')[1]
+                var monthQuery = queries.split('/')[0]
+                var month = getTwoDigits(monthQuery)
+                var day = getTwoDigits(dayQuery)
+    
+                var startsAt = `${year}-${month}-${day}T${hours}:${minuets}:00+09:00`
+                var endsAt = `${year}-${month}-${day}T${hours_end}:${minuets}:00+09:00`
+            } else {
+                */
 
+        if (true) {
+            var month = getTwoDigits(date.getMonth() + 1)
+            var day = getTwoDigits(date.getDay())
             var startsAt = `${year}-${month}-${day}T${hours}:${minuets}:00+09:00`
             var endsAt = `${year}-${month}-${day}T${hours_end}:${minuets}:00+09:00`
+        }
+        console.log('startsAt', startsAt)
+
+
+        var coursePageTitleElement = document.getElementsByClassName('page-context-header')[0];
+        if (coursePageTitleElement) {
+
+            var courseTitle = coursePageTitleElement.innerText.split(' ')[1]
+            var googleCalendarUrl
+                = (function () {
+                    //http://yoshiko.hatenablog.jp/entry/2014/03/12/Google%E3%82%AB%E3%83%AC%E3%83%B3%E3%83%80%E3%83%BC%E3%81%B8%E4%BA%88%E5%AE%9A%E8%BF%BD%E5%8A%A0%E3%81%99%E3%82%8B%E3%83%AA%E3%83%B3%E3%82%AF%E3%81%AEURL
+                    var getUTC = function (date_str) {
+                        var date = new Date(date_str);
+                        return date.getUTCFullYear() +
+                            zerofill(date.getUTCMonth() + 1) +
+                            zerofill(date.getUTCDate()) +
+                            'T' +
+                            zerofill(date.getUTCHours()) +
+                            zerofill(date.getUTCMinutes()) +
+                            zerofill(date.getUTCSeconds()) +
+                            'Z';
+                    };
+
+                    var zerofill = function (num) {
+                        return ('0' + num).slice(-2);
+                    }
+
+                    return 'http://www.google.com/calendar/event?' +
+                        'action=' + 'TEMPLATE' +
+                        '&text=' + encodeURIComponent(courseTitle + '課題') +
+                        //'&details=' + encodeURIComponent('予定の説明') +
+                        //'&location=' + encodeURIComponent('場所') +
+                        '&dates=' + getUTC(startsAt) + '/' + getUTC(endsAt) +
+                        '&trp=' + 'false'
+                    //'&sprop=' + encodeURIComponent('リンク設置元のURL') +
+                    //'&sprop=' + 'name:' + encodeURIComponent('リンク設置元のサービス名');
+
+                })();
+            return googleCalendarUrl
         } else {
-            */
-
-    if (true) {
-        var month = getTwoDigits(date.getMonth() + 1)
-        var day = getTwoDigits(date.getDay())
-        var startsAt = `${year}-${month}-${day}T${hours}:${minuets}:00+09:00`
-        var endsAt = `${year}-${month}-${day}T${hours_end}:${minuets}:00+09:00`
+            console.log('not in a course page')
+            return null
+        }
     }
-    console.log('startsAt', startsAt)
 
 
-    var coursePageTitleElement = document.getElementsByClassName('page-context-header')[0];
-    if (coursePageTitleElement) {
+    //adds button to syllabus when in course page
+    if (getGoogleCalendarUrl()) {
+        var googleCalendarDatesInput = document.createElement('input')
+        var googleCalendarButton = document.createElement('button')
+        googleCalendarButton.innerText = 'カレンダーに追加'
 
-        var courseTitle = coursePageTitleElement.innerText.split(' ')[1]
-        var googleCalendarUrl
-            = (function () {
-                //http://yoshiko.hatenablog.jp/entry/2014/03/12/Google%E3%82%AB%E3%83%AC%E3%83%B3%E3%83%80%E3%83%BC%E3%81%B8%E4%BA%88%E5%AE%9A%E8%BF%BD%E5%8A%A0%E3%81%99%E3%82%8B%E3%83%AA%E3%83%B3%E3%82%AF%E3%81%AEURL
-                var getUTC = function (date_str) {
-                    var date = new Date(date_str);
-                    return date.getUTCFullYear() +
-                        zerofill(date.getUTCMonth() + 1) +
-                        zerofill(date.getUTCDate()) +
-                        'T' +
-                        zerofill(date.getUTCHours()) +
-                        zerofill(date.getUTCMinutes()) +
-                        zerofill(date.getUTCSeconds()) +
-                        'Z';
-                };
 
-                var zerofill = function (num) {
-                    return ('0' + num).slice(-2);
+        //document.getElementById('leftBarElement').appendChild(googleCalendarDatesInput)
+        document.getElementById('leftBarElement').appendChild(googleCalendarButton)
+        googleCalendarButton.onclick = () => {
+            var queries = 'placeholder at this point'
+            window.open(getGoogleCalendarUrl(queries))
+        }
+        /*googleCalendarDatesInput.oninput = () => {
+            var queries = googleCalendarDatesInput.value
+            //realtime reactive
+            if(queries){
+                googleCalendarButton.onclick = () => {
+                    window.open(getGoogleCalendarUrl(queries))
                 }
-
-                return 'http://www.google.com/calendar/event?' +
-                    'action=' + 'TEMPLATE' +
-                    '&text=' + encodeURIComponent(courseTitle + '課題') +
-                    //'&details=' + encodeURIComponent('予定の説明') +
-                    //'&location=' + encodeURIComponent('場所') +
-                    '&dates=' + getUTC(startsAt) + '/' + getUTC(endsAt) +
-                    '&trp=' + 'false'
-                //'&sprop=' + encodeURIComponent('リンク設置元のURL') +
-                //'&sprop=' + 'name:' + encodeURIComponent('リンク設置元のサービス名');
-
-            })();
-        return googleCalendarUrl
-    } else {
-        console.log('not in a course page')
-        return null
-    }
-}
-
-
-//adds button to syllabus when in course page
-if (getGoogleCalendarUrl()) {
-    var googleCalendarDatesInput = document.createElement('input')
-    var googleCalendarButton = document.createElement('button')
-    googleCalendarButton.innerText = 'カレンダーに追加'
-
-
-    //document.getElementById('leftBarElement').appendChild(googleCalendarDatesInput)
-    document.getElementById('leftBarElement').appendChild(googleCalendarButton)
-    googleCalendarButton.onclick = () => {
-        var queries='placeholder at this point'
-        window.open(getGoogleCalendarUrl(queries))
-    }
-    /*googleCalendarDatesInput.oninput = () => {
-        var queries = googleCalendarDatesInput.value
-        //realtime reactive
-        if(queries){
-            googleCalendarButton.onclick = () => {
-                window.open(getGoogleCalendarUrl(queries))
             }
+    
+    
+        }
+        */
+    }
+    //*****6/2 progress ends here
+
+
+    //2020/06/09 peer list button
+    //adds button to syllabus when in course page
+
+
+
+
+    var getPeerPageUrl = () => {
+
+        var urlParameter = () => {
+            var arg = new Object;
+            var pair = location.search.substring(1).split('&');
+            for (var i = 0; pair[i]; i++) {
+                var kv = pair[i].split('=');
+                arg[kv[0]] = kv[1];
+            }
+            return arg
         }
 
 
+
+
+
+        if (urlParameter()['id']) {
+            var id = urlParameter()['id']
+
+            //this is used for looking for my peers
+            //you can change it and you can find students based on your student numbers and so on
+            var query=1191201
+            return `https://lss.osakafu-u.ac.jp/user/index.php?id=${id}&unified-filters%5B0%5D=${query}&perpage=5000`
+        } else {
+            return false
+        }
     }
-    */
-}
-//*****6/2 progress ends here
+
+
+    if (getPeerPageUrl()) {
+        var peerPageButton = document.createElement('button')
+        peerPageButton.innerText = '知り合いを探す'
+        document.getElementById('leftBarElement').appendChild(peerPageButton)
+        peerPageButton.onclick = () => {
+            window.open(getPeerPageUrl())
+        }
+    }
 
 
 
